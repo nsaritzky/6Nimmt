@@ -14,15 +14,10 @@ interface CardProps {
   key?: number
 }
 
-interface CardButtonProps {
-  card: card
-  playCard: () => void
-  key: number
-}
-
 interface EndTurnButtonProps {
   endTurn: () => void
   disabled: boolean
+  phase: string
 }
 
 interface selectPileButtonProps {
@@ -31,9 +26,10 @@ interface selectPileButtonProps {
   disabled: boolean
 }
 
-interface handProps {
+interface HandProps {
   hand: card[]
   playCard: () => void
+  active: boolean
 }
 
 interface pileProps {
@@ -44,11 +40,12 @@ interface pileProps {
 interface pileButtonProps {
   cards: card[]
   key: number
+  index: number
   disabled: boolean
   selectPileMove: () => void
 }
 
-const Card = ({ card, key }: CardProps) => {
+export const Card = ({ card, key }: CardProps) => {
   return (
     <div className="card" key={key || ""}>
       <div className="text-center">{card.val}</div>
@@ -56,27 +53,22 @@ const Card = ({ card, key }: CardProps) => {
     </div>
   )
 }
-const CardButton = ({ card, playCard, key }: CardButtonProps) => {
+
+const EndTurnButton = ({ endTurn, disabled, phase }: EndTurnButtonProps) => {
+  const onClick = () => {
+    if (phase === "pileSelection") {
+    }
+  }
   return (
     <button
-      className="bg-blue-300 rounded min-w-max my-1 mx-1 animate-in fade-in"
-      onClick={playCard}
-      key={key}
+      className="btn bg-green-400 disabled:bg-green-200"
+      onClick={endTurn}
+      disabled={disabled}
     >
-      <Card card={card} />
+      Confirm
     </button>
   )
 }
-
-const EndTurnButton = ({ endTurn, disabled }: EndTurnButtonProps) => (
-  <button
-    className="btn bg-green-400 disabled:bg-green-200"
-    onClick={endTurn}
-    disabled={disabled}
-  >
-    End Turn
-  </button>
-)
 
 const SelectPileButton = ({ selectPileMove, disabled, key }: selectPileButtonProps) => (
   <button
@@ -91,9 +83,9 @@ const SelectPileButton = ({ selectPileMove, disabled, key }: selectPileButtonPro
 
 const Pile = ({ cards }: pileProps) => {
   return (
-    <div className="flex shadow group py-2 px-1 group-hover:bg-slate-100">
+    <div className="flex py-2 px-1 shadow group-hover:bg-slate-100">
       {cards.map((c, i) => (
-        <div className="card bg-blue-300 group-hover:bg-blue-400 mx-1" key={i}>
+        <div className="card mx-1 bg-blue-300 group-hover:bg-blue-400" key={i}>
           <Card card={c} />
         </div>
       ))}
@@ -101,27 +93,48 @@ const Pile = ({ cards }: pileProps) => {
   )
 }
 
-const PileButton = ({ cards, selectPileMove, disabled, index }: pileButtonProps) => (
-  <div>
-    <button
-      onClick={selectPileMove}
-      disabled={disabled}
-      aria-label={`pile ${index}`}
-      className={"p-2 m-2" + (!disabled ? " group" : "")}
-    >
-      <Pile cards={cards} />
-    </button>
-  </div>
-)
+const PileButton = ({ cards, selectPileMove, disabled, index }: pileButtonProps) => {
+  return (
+    <div>
+      <button
+        onClick={selectPileMove}
+        disabled={disabled}
+        aria-label={`pile ${index}`}
+        className={"m-2 p-2" + (!disabled ? " group" : "")}
+      >
+        <Pile cards={cards} />
+      </button>
+    </div>
+  )
+}
 
 const SixNimmtBoard = ({ G, ctx, events, playerID, moves }: SixNimmtProps) => {
+  const [selectedCard, selectCard] = useState(null as number | null)
+
+  const playerActive = Boolean(ctx.activePlayers && playerID! in ctx.activePlayers)
+
+  const handActive = ctx.phase === "play" && playerActive
+
+  const onSubmit = () => {
+    if (ctx.phase === "play") {
+      moves["playCard"](selectedCard, playerID)
+      selectCard(null)
+    }
+  }
+
   return (
     <div className="space-y-1">
-      <div className="flex flex-wrap justify-start">
-        {G.players[playerID!].hand.map((card, i) =>
-          CardButton({ card, playCard: () => moves.playCard(i, playerID), key: i })
-        )}
-      </div>
+      <Hand
+        G={G}
+        playerID={playerID!}
+        selectedCard={selectedCard}
+        active={handActive}
+        onClick={(n: number) => {
+          if (handActive) {
+            selectCard(n)
+          }
+        }}
+      />
       {G.players[playerID!].playedCard && (
         <div aria-label="played card" className="card bg-purple-200">
           <Card card={G.players[playerID!].playedCard!} />
@@ -139,10 +152,7 @@ const SixNimmtBoard = ({ G, ctx, events, playerID, moves }: SixNimmtProps) => {
         ))}
       </section>
       <div className="flex justify-center">
-        <EndTurnButton
-          endTurn={() => events.endTurn!()}
-          disabled={ctx.currentPlayer !== playerID}
-        />
+        <EndTurnButton endTurn={onSubmit} disabled={!playerActive} phase={ctx.phase} />
       </div>
       <ScoreTable G={G} />
     </div>

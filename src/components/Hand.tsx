@@ -15,12 +15,13 @@ interface HandProps {
   playerID: string
   selectedCard: number | null
   onClick: (n: number) => void
+  active: boolean
 }
 
 const CardButton = ({ card, onClick, key, selected }: CardButtonProps) => {
   return (
     <button
-      className={`rounded min-w-max my-1 mx-1 animate-in fade-in ${
+      className={`animate-in fade-in my-1 mx-1 min-w-max rounded ${
         selected ? "bg-blue-500" : "bg-blue-300"
       }`}
       onClick={onClick}

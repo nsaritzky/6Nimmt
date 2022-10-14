@@ -3,16 +3,28 @@ import type { Ctx, Game, Move, PlayerID, FnContext } from "boardgame.io"
 import { GameState, card, PlayerState, Piles, PublicState } from "./types"
 import { filterWithIndex } from "fp-ts/Record"
 import { ActivePlayers, TurnOrder } from "boardgame.io/core"
+import { pick, merge, pickFrom } from "fp-ts-std/Struct"
 
-const playerView = (
-  { piles, players }: GameState,
-  _ctx: Ctx,
-  playerID: PlayerID | null
-): PublicState => {
+const mapValues = <T, O extends { [s: string]: T }, S>(
+  obj: O,
+  fn: (v: T, k: keyof O, i: number) => S
+) => Object.fromEntries(Object.entries(obj).map(([k, v], i) => [k, fn(v, k, i)]))
+
+const playerView = ({ G, playerID }: { G: GameState; playerID: PlayerID | null }) => {
+  const { piles, players } = G
   // const isNotThisPlayer: Predicate<PlayerID> = (id, _) => id != playerID
   return {
     piles,
-    players: filterWithIndex((id: PlayerID, _) => id === playerID)(players),
+    players: {
+      ...merge(filterWithIndex((id: PlayerID, _) => id === playerID)(players))(
+        Object.fromEntries(
+          Object.entries(players).map(([id, p]) => [
+            id,
+            pick<PlayerState, keyof PlayerState>(["score"])(p),
+          ])
+        )
+      ),
+    },
   }
 }
 
@@ -150,12 +162,7 @@ const roundEnd = ({ G, ctx }: FnContext<GameState>) => {
 export const SixNimmt: Game<GameState> = {
   name: "6Nimmt!",
   setup,
-  playerView: ({ G, playerID }) =>
-    // const isNotThisPlayer: Predicate<PlayerID> = (id, _) => id != playerID
-    ({
-      piles: G.piles,
-      players: filterWithIndex((id: PlayerID, _) => id === playerID)(G.players),
-    }),
+  // playerView,
 
   turn: {
     minMoves: 1,

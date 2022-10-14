@@ -8,8 +8,8 @@ const SixNimmtClient = Client({
   game: SixNimmt,
   board: SixNimmtBoard,
   multiplayer: Local(),
-  enhancer:
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+  /* enhancer:
+   *   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(), */
 })
 
 const App = () => (

@@ -6,11 +6,11 @@ const ScoreTable = ({ G }: { G: GameState }) => {
   return (
     <div className="w-32">
       <table className="w-full text-lg ">
-        <tr className="w-full font-bold bg-gray-200">
-          <th colspan={2}>Score</th>
+        <tr className="w-full bg-gray-200 font-bold">
+          <th colSpan={2}>Score</th>
         </tr>
         {Object.entries(G.players).map(([id, p]) => (
-          <tr className="w-full py-2 bg-gray-100">
+          <tr className="w-full bg-gray-100 py-2">
             <td className="pr-4">Player {id}</td>
             <td>{p.score}</td>
           </tr>
