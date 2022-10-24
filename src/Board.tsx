@@ -1,12 +1,9 @@
 import type { BoardProps } from "boardgame.io/react"
-import type { GameState, card } from "./types"
+import type { GameState, card, PlayerID, PlayerState } from "./types"
 import ScoreTable from "./components/scoreTable"
 import Hand from "./components/Hand"
 /* import Button from "@mui/material/Button" */
-import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core"
-import { Ctx } from "boardgame.io"
 import { useState } from "react"
-import { Transition } from "@headlessui/react"
 
 interface SixNimmtProps extends BoardProps<GameState> {}
 interface CardProps {
@@ -122,6 +119,9 @@ const SixNimmtBoard = ({ G, ctx, events, playerID, moves }: SixNimmtProps) => {
     }
   }
 
+  const playerScores = (ps: Record<PlayerID, PlayerState>) =>
+    Object.fromEntries(Object.entries(ps).map(([id, S]) => [id, S.score]))
+
   return (
     <div className="space-y-1">
       <Hand
@@ -154,7 +154,7 @@ const SixNimmtBoard = ({ G, ctx, events, playerID, moves }: SixNimmtProps) => {
       <div className="flex justify-center">
         <EndTurnButton endTurn={onSubmit} disabled={!playerActive} phase={ctx.phase} />
       </div>
-      <ScoreTable G={G} />
+      <ScoreTable playerScores={playerScores(G.players)} />
     </div>
   )
 }

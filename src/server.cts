@@ -15,10 +15,8 @@ const server = Server({
   ],
   db: new FlatFile({
     dir: "./storage.db",
-    logging: true,
+    logging: false,
   }),
 })
 
-export {}
-
-server.run(8008)
+server.run(8000)
