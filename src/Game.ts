@@ -3,7 +3,7 @@ import type { Ctx, Game, Move, PlayerID, FnContext } from "boardgame.io"
 import { GameState, card, PlayerState, Piles, PublicState } from "./types"
 import { filterWithIndex } from "fp-ts/Record"
 import { ActivePlayers, TurnOrder } from "boardgame.io/core"
-import { pick, merge, pickFrom } from "fp-ts-std/Struct"
+import { pick, merge } from "./utils"
 
 const mapValues = <T, O extends { [s: string]: T }, S>(
   obj: O,

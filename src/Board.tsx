@@ -62,7 +62,7 @@ const EndTurnButton = ({ endTurn, disabled, phase }: EndTurnButtonProps) => {
       onClick={endTurn}
       disabled={disabled}
     >
-      Confirm
+      {disabled ? "Waiting..." : "Confirm"}
     </button>
   )
 }
@@ -123,38 +123,51 @@ const SixNimmtBoard = ({ G, ctx, events, playerID, moves }: SixNimmtProps) => {
     Object.fromEntries(Object.entries(ps).map(([id, S]) => [id, S.score]))
 
   return (
-    <div className="space-y-1">
-      <Hand
-        G={G}
-        playerID={playerID!}
-        selectedCard={selectedCard}
-        active={handActive}
-        onClick={(n: number) => {
-          if (handActive) {
-            selectCard(n)
-          }
-        }}
-      />
-      {G.players[playerID!].playedCard && (
-        <div aria-label="played card" className="card bg-purple-200">
-          <Card card={G.players[playerID!].playedCard!} />
-        </div>
-      )}
-      <section aria-label="piles" className="flex-1 flex-col">
-        {G.piles.map((cards, key) => (
-          <PileButton
-            cards={cards}
-            key={key}
-            index={key}
-            selectPileMove={() => moves.choosePileMove(key)}
-            disabled={(ctx.activePlayers || {})[playerID!] != "playerSelection"}
+    <div className="flex">
+      <div>
+        <div className="space-y-1">
+          <Hand
+            G={G}
+            playerID={playerID!}
+            selectedCard={selectedCard}
+            active={handActive}
+            onClick={(n: number) => {
+              if (handActive) {
+                selectCard(n)
+              }
+            }}
           />
-        ))}
-      </section>
-      <div className="flex justify-center">
-        <EndTurnButton endTurn={onSubmit} disabled={!playerActive} phase={ctx.phase} />
+          {G.players[playerID!].playedCard && (
+            <div
+              aria-label="played card"
+              className="card bg-purple-200 ml-5 ring-2 ring-black"
+            >
+              <Card card={G.players[playerID!].playedCard!} />
+            </div>
+          )}
+          <section aria-label="piles" className="flex-1 flex-col">
+            {G.piles.map((cards, key) => (
+              <PileButton
+                cards={cards}
+                key={key}
+                index={key}
+                selectPileMove={() => moves.choosePileMove(key)}
+                disabled={(ctx.activePlayers || {})[playerID!] != "playerSelection"}
+              />
+            ))}
+          </section>
+          <div className="flex justify-center">
+            <EndTurnButton
+              endTurn={onSubmit}
+              disabled={!playerActive}
+              phase={ctx.phase}
+            />
+          </div>
+        </div>
+        <div className="m-4">
+          <ScoreTable playerScores={playerScores(G.players)} playerID={playerID!} />
+        </div>
       </div>
-      <ScoreTable playerScores={playerScores(G.players)} />
     </div>
   )
 }

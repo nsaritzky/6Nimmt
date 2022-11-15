@@ -12,6 +12,7 @@ const server = Server({
     "https://www.nsaritzky.github.io",
     // Allow localhost to connect, except when NODE_ENV is 'production'.
     Origins.LOCALHOST,
+    "0.0.0.0",
   ],
   db: new FlatFile({
     dir: "./storage.db",
@@ -20,5 +21,6 @@ const server = Server({
 })
 
 export {}
+const PORT = process.env.PORT || 8080
 
-server.run(8008)
+server.run(typeof PORT === "string" ? parseInt(PORT) : PORT)

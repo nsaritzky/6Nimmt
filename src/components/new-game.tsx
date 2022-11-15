@@ -7,11 +7,13 @@ interface NewGameProps {
 }
 
 const NewGame = ({ dispatch }: NewGameProps) => {
-  const [numPlayers, setNumPlayers] = useState(2)
+  const [numPlayers, setNumPlayers] = useState<number>()
 
   const handleSubmit = (e: any) => {
     e.preventDefault()
-    create(numPlayers)
+    if (numPlayers) {
+      create(numPlayers)
+    }
     updateMatches(dispatch)
   }
 
@@ -20,6 +22,7 @@ const NewGame = ({ dispatch }: NewGameProps) => {
   return (
     <form onSubmit={handleSubmit}>
       <input
+        placeholder="Number of Players"
         type="number"
         name="numPlayers"
         value={numPlayers}
@@ -27,7 +30,11 @@ const NewGame = ({ dispatch }: NewGameProps) => {
         max="10"
         onChange={handleChange}
       />
-      <input type="submit" value="Submit" />
+      <input
+        type="submit"
+        value="New Game"
+        className="px-4 py-2 m-2 bg-blue-400 rounded"
+      />
     </form>
   )
 }

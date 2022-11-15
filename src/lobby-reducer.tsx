@@ -15,6 +15,7 @@ import Match from "./components/match"
 import { v4 as uuid } from "uuid"
 import { GameState } from "./types"
 import { SocketIO } from "boardgame.io/multiplayer"
+import { ChevronLeft } from "lucide-react"
 
 const playerName = "Nathan"
 const storageKey = "babababa"
@@ -165,34 +166,56 @@ const BespokeLobby = ({
   useInterval(async () => await updateMatches(dispatch), 2000)
 
   const lobby = (
-    <>
-      <NewGame dispatch={dispatch} />
-      <div>
-        {state.matchList.map((m) => (
-          <Match
-            key={m.matchID}
-            match={m}
-            playerUID={state.playerUID}
-            player={state.playerData[m.matchID]}
-            dispatch={dispatch}
-          />
-        ))}
+    <div className="flex justify-center">
+      <div className="mt-4">
+        <NewGame dispatch={dispatch} />
+        <div className="flex flex-col items-center">
+          {state.matchList.map((m) => (
+            <Match
+              key={m.matchID}
+              match={m}
+              playerUID={state.playerUID}
+              player={state.playerData[m.matchID]}
+              dispatch={dispatch}
+            />
+          ))}
+        </div>
       </div>
-    </>
+    </div>
   )
 
   const playing = (
     <div>
+      <button className="ml-4 mt-4" onClick={() => stop(dispatch)}>
+        <div className="flex">
+          <ChevronLeft />
+          Back to Lobby
+        </div>
+      </button>
       {state.runningMatch && (
-        <SixNimmtClient
-          matchID={state.runningMatch.matchID}
-          playerID={state.runningMatch.playerData.playerID}
-          credentials={state.runningMatch.playerData.credentials}
-        />
+        <>
+          <SixNimmtClient
+            matchID={state.runningMatch.matchID}
+            playerID={state.runningMatch.playerData.playerID}
+            credentials={state.runningMatch.playerData.credentials}
+          />
+          <div className="m-4">
+            <Button
+              color="failure"
+              onClick={() => {
+                leave(
+                  state.runningMatch!.matchID,
+                  state.runningMatch!.playerData,
+                  dispatch
+                )
+                stop(dispatch)
+              }}
+            >
+              Leave
+            </Button>
+          </div>
+        </>
       )}
-      <Button color="failure" onClick={() => stop(dispatch)}>
-        Leave
-      </Button>
     </div>
   )
 

@@ -7,7 +7,8 @@ import BespokeLobby from "./lobby-reducer"
 const SixNimmtClient = Client({
   game: SixNimmt,
   board: SixNimmtBoard,
-  multiplayer: SocketIO({ server: "localhost:8000" }),
+  multiplayer: SocketIO({ server: "sixnimmt.fly.dev:8080" }),
+  debug: false,
   /* enhancer:
    *   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(), */
 })

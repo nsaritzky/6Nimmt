@@ -36,7 +36,9 @@ const Match = ({
   return (
     <>
       <div
-        className={"flex justify-between p-2 m-2 w-48 items-center border" + className}
+        className={
+          "flex justify-between p-2 m-2 w-full items-center border" + className
+        }
       >
         <span>{`${takenSpots} / ${totalSpots}`}</span>
         <div className="pl-2">
@@ -49,7 +51,7 @@ const Match = ({
             value="Join"
             onClick={onClick}
           >
-            {player ? "Leave" : "Join"}
+            {player ? "Enter" : "Join"}
           </Button>
         </div>
       </div>

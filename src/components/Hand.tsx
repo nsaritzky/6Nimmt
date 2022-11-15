@@ -8,6 +8,7 @@ interface CardButtonProps {
   onClick: () => void
   key: number
   selected: boolean
+  active: boolean
 }
 
 interface HandProps {
@@ -18,11 +19,15 @@ interface HandProps {
   active: boolean
 }
 
-const CardButton = ({ card, onClick, key, selected }: CardButtonProps) => {
+const CardButton = ({ card, onClick, key, selected, active }: CardButtonProps) => {
   return (
     <button
       className={`animate-in fade-in my-1 mx-1 min-w-max rounded ${
-        selected ? "bg-blue-500" : "bg-blue-300"
+        active
+          ? selected
+            ? "bg-blue-500"
+            : "hover:bg-blue-400 bg-blue-300"
+          : "bg-blue-300"
       }`}
       onClick={onClick}
       key={key}
@@ -32,15 +37,18 @@ const CardButton = ({ card, onClick, key, selected }: CardButtonProps) => {
   )
 }
 
-const Hand = ({ G, playerID, selectedCard, onClick }: HandProps) => {
+const Hand = ({ G, playerID, selectedCard, onClick, active }: HandProps) => {
+  const sortedHand = G.players[playerID!].hand.sort((a, b) => a.val - b.val)
+
   return (
-    <div className="flex flex-wrap justify-start">
-      {G.players[playerID!].hand.map((card, i) =>
+    <div className="flex flex-wrap justify-start m-4">
+      {sortedHand.map((card, i) =>
         CardButton({
           card,
           onClick: () => onClick(i),
           key: i,
           selected: i === selectedCard,
+          active,
         })
       )}
     </div>

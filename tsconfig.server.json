@@ -3,7 +3,9 @@
   "compilerOptions": {
     "noEmit": false,
     "module": "CommonJS",
-    "outDir": "build/server/"
+    "outDir": "build/server/",
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
   },
   "include": ["src/server.ts"]
 }
