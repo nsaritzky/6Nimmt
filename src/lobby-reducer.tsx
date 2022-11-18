@@ -163,7 +163,10 @@ const BespokeLobby = ({
    *   multiplayer: SocketIO({ server }),
    * }) */
 
-  useInterval(async () => await updateMatches(dispatch), 2000)
+  useInterval(
+    async () => await updateMatches(dispatch),
+    state.runningMatch ? null : 2000
+  )
 
   const lobby = (
     <div className="flex justify-center">
