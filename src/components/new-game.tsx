@@ -12,7 +12,7 @@ const NewGame = ({ dispatch }: NewGameProps) => {
   const handleSubmit = (e: any) => {
     e.preventDefault()
     if (numPlayers) {
-      create(numPlayers)
+      create(numPlayers, dispatch)
     }
     updateMatches(dispatch)
   }

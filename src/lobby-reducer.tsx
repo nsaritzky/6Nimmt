@@ -52,8 +52,15 @@ interface State {
 
 const client = new LobbyClient({ server: server })
 
-export const create = async (numPlayers: number) => {
+export const updateMatches = async (dispatch: Dispatch<Action>) => {
+  const { matches } = await client.listMatches("6Nimmt!")
+
+  return dispatch({ type: "updateMatches", matches })
+}
+
+export const create = async (numPlayers: number, dispatch: Dispatch<Action>) => {
   await client.createMatch("6Nimmt!", { numPlayers })
+  await updateMatches(dispatch)
 }
 
 export const join = async (matchID: string, dispatch: Dispatch<Action>) => {
@@ -95,12 +102,6 @@ export const start = (
 export const stop = (dispatch: Dispatch<Action>) => {
   console.log("Leaving match?")
   return dispatch({ type: "stop" })
-}
-
-export const updateMatches = async (dispatch: Dispatch<Action>) => {
-  const { matches } = await client.listMatches("6Nimmt!")
-
-  return dispatch({ type: "updateMatches", matches })
 }
 
 const reducer = (state: State, action: Action): State => {
