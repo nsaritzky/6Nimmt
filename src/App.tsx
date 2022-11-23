@@ -3,11 +3,12 @@ import { Client } from "boardgame.io/react"
 import { SixNimmt } from "./Game"
 import SixNimmtBoard from "./Board"
 import BespokeLobby from "./lobby-reducer"
+import { serverHostname as server } from "./config"
 
 const SixNimmtClient = Client({
   game: SixNimmt,
   board: SixNimmtBoard,
-  multiplayer: SocketIO({ server: "sixnimmt.fly.dev:8080" }),
+  multiplayer: SocketIO({ server }),
   debug: false,
   /* enhancer:
    *   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(), */

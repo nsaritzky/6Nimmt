@@ -16,9 +16,9 @@ import { v4 as uuid } from "uuid"
 import { GameState } from "./types"
 import { SocketIO } from "boardgame.io/multiplayer"
 import { ChevronLeft } from "lucide-react"
+import { serverHostname as server, STORAGE_KEY } from "./config"
 
 const playerName = "Nathan"
-const storageKey = "babababa"
 
 export interface PlayerData {
   playerID: string
@@ -50,8 +50,7 @@ interface State {
   runningMatch?: RunningMatch
 }
 
-const server = "http://localhost:8000"
-const client = new LobbyClient({ server })
+const client = new LobbyClient({ server: server })
 
 export const create = async (numPlayers: number) => {
   await client.createMatch("6Nimmt!", { numPlayers })
@@ -154,7 +153,7 @@ const BespokeLobby = ({
   const [state, dispatch] = usePersistantReducer(
     reducer,
     { matchList: [], playerData: {}, playerUID: uuid() },
-    storageKey
+    STORAGE_KEY
   )
 
   /* const Board = client({
