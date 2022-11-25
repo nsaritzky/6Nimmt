@@ -5,25 +5,23 @@ import { Action, PlayerData, start } from "../lobby-reducer"
 import { join, leave, updateMatches } from "../lobby-reducer"
 import { Client } from "boardgame.io/react"
 
-const Match = ({
-  match,
-  player,
-  dispatch,
-  className = "",
-}: {
+interface Props {
   match: LobbyAPI.Match
   playerUID: string
   player: PlayerData | undefined
+  playerName: string
   dispatch: Dispatch<Action>
   className?: string
-}) => {
+}
+
+const Match = ({ match, player, playerName, dispatch, className = "" }: Props) => {
   const onClick = async () => {
     try {
       if (player) {
         /* await leave(match.matchID, player, dispatch) */
         start(match.matchID, player, dispatch)
       } else {
-        await join(match.matchID, dispatch)
+        await join(match.matchID, playerName, dispatch)
       }
       updateMatches(dispatch)
     } catch (error) {

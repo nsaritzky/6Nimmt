@@ -2,6 +2,8 @@ import { Client, Lobby } from "boardgame.io/react"
 import { LobbyClient } from "boardgame.io/client"
 import { SixNimmt } from "./Game"
 import SixNimmtBoard from "./Board"
+import GameLobby from "./components/game-lobby"
+import UserNameForm from "./components/username-form"
 import { Dispatch, useCallback, useEffect, useReducer, useRef, useState } from "react"
 import { LobbyAPI } from "boardgame.io"
 import { Button } from "flowbite-react"
@@ -18,8 +20,6 @@ import { SocketIO } from "boardgame.io/multiplayer"
 import { ChevronLeft } from "lucide-react"
 import { serverHostname as server, STORAGE_KEY } from "./config"
 
-const playerName = "Nathan"
-
 export interface PlayerData {
   playerID: string
   credentials: string
@@ -28,6 +28,7 @@ export interface PlayerData {
 type LocalData = Record<string, PlayerData>
 
 export type Action =
+  | { type: "setUsername"; name: string }
   | {
       type: "join"
       matchID: string
@@ -46,6 +47,7 @@ interface RunningMatch {
 interface State {
   matchList: LobbyAPI.Match[]
   playerData: LocalData
+  playerName: string
   playerUID: string
   runningMatch?: RunningMatch
 }
@@ -63,7 +65,11 @@ export const create = async (numPlayers: number, dispatch: Dispatch<Action>) => 
   await updateMatches(dispatch)
 }
 
-export const join = async (matchID: string, dispatch: Dispatch<Action>) => {
+export const join = async (
+  matchID: string,
+  playerName: string,
+  dispatch: Dispatch<Action>
+) => {
   const { playerID, playerCredentials: credentials } = await client.joinMatch(
     "6Nimmt!",
     matchID,
@@ -82,6 +88,7 @@ export const leave = async (
   dispatch: Dispatch<Action>
 ) => {
   await client.leaveMatch("6Nimmt!", matchID, playerData)
+  await updateMatches(dispatch)
   return dispatch({ type: "leave", matchID })
 }
 
@@ -100,12 +107,13 @@ export const start = (
 }
 
 export const stop = (dispatch: Dispatch<Action>) => {
-  console.log("Leaving match?")
   return dispatch({ type: "stop" })
 }
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
+    case "setUsername":
+      return { ...state, playerName: action.name }
     case "join":
       try {
         return {
@@ -153,7 +161,7 @@ const BespokeLobby = ({
 }) => {
   const [state, dispatch] = usePersistantReducer(
     reducer,
-    { matchList: [], playerData: {}, playerUID: uuid() },
+    { matchList: [], playerData: {}, playerName: "", playerUID: uuid() },
     STORAGE_KEY
   )
 
@@ -170,7 +178,8 @@ const BespokeLobby = ({
 
   const lobby = (
     <div className="flex justify-center">
-      <div className="mt-4">
+      <div className="mt-4 ">
+        <UserNameForm userName={state.playerName} dispatch={dispatch} />
         <NewGame dispatch={dispatch} />
         <div className="flex flex-col items-center">
           {state.matchList.map((m) => (
@@ -179,6 +188,7 @@ const BespokeLobby = ({
               match={m}
               playerUID={state.playerUID}
               player={state.playerData[m.matchID]}
+              playerName={state.playerName}
               dispatch={dispatch}
             />
           ))}
