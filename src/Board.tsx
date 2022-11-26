@@ -105,7 +105,14 @@ const PileButton = ({ cards, selectPileMove, disabled, index }: pileButtonProps)
   )
 }
 
-const SixNimmtBoard = ({ G, ctx, events, playerID, moves }: SixNimmtProps) => {
+const SixNimmtBoard = ({
+  G,
+  ctx,
+  events,
+  matchData,
+  playerID,
+  moves,
+}: SixNimmtProps) => {
   const [selectedCard, selectCard] = useState(null as number | null)
 
   const playerActive = Boolean(ctx.activePlayers && playerID! in ctx.activePlayers)
@@ -165,7 +172,11 @@ const SixNimmtBoard = ({ G, ctx, events, playerID, moves }: SixNimmtProps) => {
           </div>
         </div>
         <div className="m-4">
-          <ScoreTable playerScores={playerScores(G.players)} playerID={playerID!} />
+          <ScoreTable
+            playerScores={playerScores(G.players)}
+            matchData={matchData}
+            playerID={playerID!}
+          />
         </div>
       </div>
     </div>

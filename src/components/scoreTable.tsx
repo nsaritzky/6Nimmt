@@ -1,12 +1,19 @@
+import { FilteredMetadata } from "boardgame.io"
 import { SixNimmt } from "../Game"
 import type { PlayerState, GameState, PlayerID } from "../types"
 
 interface Props {
   playerScores: Record<PlayerID, number>
+  matchData: FilteredMetadata | undefined
   playerID: string | number
 }
 
-const ScoreTable = ({ playerScores, playerID }: Props) => {
+const ScoreTable = ({ playerScores, matchData, playerID }: Props) => {
+  const displayName = (id: PlayerID) =>
+    matchData
+      ? matchData.find((p) => p.id == parseInt(id))?.name
+      : `Player ${parseInt(id) + 1}`
+
   return (
     <div className="w-32">
       <table className="w-full text-lg ">
@@ -23,7 +30,7 @@ const ScoreTable = ({ playerScores, playerID }: Props) => {
                 id === playerID ? "bg-blue-200" : "bg-gray-100"
               }`}
             >
-              <td className="pr-4">Player {parseInt(id) + 1}</td>
+              <td className="pr-4">{displayName(id)}</td>
               <td>{score}</td>
             </tr>
           ))}
