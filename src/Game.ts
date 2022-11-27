@@ -52,7 +52,7 @@ const setup: typeof SixNimmt.setup = ({ ctx, random }) => {
   ]
   for (let i = 0; i < ctx.numPlayers; ++i) {
     players[i + ""] = {
-      hand: deck.splice(0, 10).sort(),
+      hand: deck.splice(0, 10).sort((a, b) => a.val - b.val),
       score: 0,
       resolved: false,
     }

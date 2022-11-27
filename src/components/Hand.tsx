@@ -38,8 +38,6 @@ const CardButton = ({ card, onClick, key, selected, active }: CardButtonProps) =
 }
 
 const Hand = ({ G, playerID, selectedCard, onClick, active }: HandProps) => {
-  const sortedHand = G.players[playerID!].hand.sort((a, b) => a.val - b.val)
-
   return (
     <div className="flex flex-wrap justify-start m-4">
       {sortedHand.map((card, i) =>
