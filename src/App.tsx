@@ -1,11 +1,12 @@
 import { Local, SocketIO } from "boardgame.io/multiplayer"
+import type { GameState, BoardProps } from "./types"
 import { Client } from "boardgame.io/react"
 import { SixNimmt } from "./Game"
 import SixNimmtBoard from "./Board"
 import BespokeLobby from "./lobby-reducer"
 import { serverHostname as server } from "./config"
 
-const SixNimmtClient = Client({
+const SixNimmtClient = Client<GameState, BoardProps<GameState>>({
   game: SixNimmt,
   board: SixNimmtBoard,
   multiplayer: SocketIO({ server }),

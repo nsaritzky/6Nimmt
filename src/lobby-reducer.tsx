@@ -19,6 +19,9 @@ import { GameState } from "./types"
 import { SocketIO } from "boardgame.io/multiplayer"
 import { ChevronLeft } from "lucide-react"
 import { serverHostname as server, STORAGE_KEY } from "./config"
+import { BoardProps, GameState } from "./types"
+
+const HOUR_IN_MILLISECONDS = 3600000
 
 export interface PlayerData {
   playerID: string
@@ -50,13 +53,13 @@ interface State {
   playerName: string
   playerUID: string
   runningMatch?: RunningMatch
+  runningMatchAPI?: LobbyAPI.Match
 }
 
 const client = new LobbyClient({ server: server })
 
 export const updateMatches = async (dispatch: Dispatch<Action>) => {
   const { matches } = await client.listMatches("6Nimmt!")
-
   return dispatch({ type: "updateMatches", matches })
 }
 
@@ -157,11 +160,16 @@ const reducer = (state: State, action: Action): State => {
 const BespokeLobby = ({
   SixNimmtClient,
 }: {
-  SixNimmtClient: ReturnType<typeof Client>
+  SixNimmtClient: ReturnType<typeof Client<GameState, BoardProps<GameState>>>
 }) => {
   const [state, dispatch] = usePersistantReducer(
     reducer,
-    { matchList: [], playerData: {}, playerName: "", playerUID: uuid() },
+    {
+      matchList: [],
+      playerData: {},
+      playerName: "",
+      playerUID: uuid(),
+    },
     STORAGE_KEY
   )
 
@@ -199,34 +207,22 @@ const BespokeLobby = ({
 
   const playing = (
     <div>
-      <button className="ml-4 mt-4" onClick={() => stop(dispatch)}>
-        <div className="flex">
-          <ChevronLeft />
-          Back to Lobby
-        </div>
-      </button>
       {state.runningMatch && (
         <>
           <SixNimmtClient
             matchID={state.runningMatch.matchID}
             playerID={state.runningMatch.playerData.playerID}
             credentials={state.runningMatch.playerData.credentials}
+            leaveMatch={() =>
+              leave(
+                state.runningMatch!.matchID,
+                state.runningMatch!.playerData,
+                dispatch
+              )
+            }
+            stop={() => stop(dispatch)}
           />
-          <div className="m-4">
-            <Button
-              color="failure"
-              onClick={() => {
-                leave(
-                  state.runningMatch!.matchID,
-                  state.runningMatch!.playerData,
-                  dispatch
-                )
-                stop(dispatch)
-              }}
-            >
-              Leave
-            </Button>
-          </div>
+          <div className="m-4"></div>
         </>
       )}
     </div>

@@ -1,5 +1,7 @@
-import { Ctx } from "boardgame.io"
-import { NonEmptyArray } from "fp-ts/NonEmptyArray"
+import type { Ctx } from "boardgame.io"
+import type { NonEmptyArray } from "fp-ts/NonEmptyArray"
+import type { BoardProps as bgioBoardProps } from "boardgame.io/react"
+import type { Dispatch } from "react"
 
 export type bulls = 1 | 2 | 3 | 4 | 5
 export type card = { val: number; bulls: bulls }
@@ -25,6 +27,11 @@ export interface GameState {
   piles: Piles
   resolveOrder?: PlayerID[]
   resolveCounter: number
+}
+
+export interface BoardProps<G = GameState> extends bgioBoardProps<G> {
+  leaveMatch: () => void
+  stop: () => void
 }
 
 export type GameContext = { G: GameState; ctx: Ctx }
