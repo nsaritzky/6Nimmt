@@ -40,7 +40,7 @@ const CardButton = ({ card, onClick, key, selected, active }: CardButtonProps) =
 const Hand = ({ G, playerID, selectedCard, onClick, active }: HandProps) => {
   return (
     <div className="flex flex-wrap justify-start m-4">
-      {sortedHand.map((card, i) =>
+      {G.players[playerID!].hand.map((card, i) =>
         CardButton({
           card,
           onClick: () => onClick(i),
