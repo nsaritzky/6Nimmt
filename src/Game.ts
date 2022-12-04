@@ -131,6 +131,7 @@ const autoSelect = ({ G, ctx, events }: FnContext<GameState>) => {
         G.piles[autoSelect] = []
       }
       G.piles[autoSelect].push(c)
+      c.justPlayed = true
       delete curr.resolveOrder
       delete curr.playedCard
       events.endTurn()
@@ -147,7 +148,9 @@ const choosePileMove: Move<GameState> = (
 ) => {
   G.players[ctx.currentPlayer].score += devourPileScore(G, pileIndex)
   G.piles[pileIndex] = []
-  G.piles[pileIndex].push(G.players[ctx.currentPlayer].playedCard!)
+  const c = G.players[ctx.currentPlayer].playedCard!
+  G.piles[pileIndex].push(c)
+  c.justPlayed = true
   delete G.players[ctx.currentPlayer].resolveOrder
   delete G.players[ctx.currentPlayer].playedCard
   events.endStage()
@@ -178,6 +181,13 @@ export const SixNimmt: Game<GameState> = {
       },
       moves: { playCard },
       endIf: ({ G }) => Object.values(G.players).every((p) => p.playedCard),
+      onEnd: ({ G }) => {
+        for (const pile of G.piles) {
+          for (const card of pile) {
+            card.justPlayed = false
+          }
+        }
+      },
       next: "pileSelection",
     },
     pileSelection: {
