@@ -172,6 +172,7 @@ const BespokeLobby = ({
     },
     STORAGE_KEY
   )
+  const [currentMatch, setCurrentMatch] = useState<LobbyAPI.Match>()
 
   /* const Board = client({
    *   game: SixNimmt,
@@ -183,6 +184,28 @@ const BespokeLobby = ({
     async () => await updateMatches(dispatch),
     state.runningMatch ? null : 2000
   )
+
+  useEffect(() => {
+    ;(async () => {
+      if (state.runningMatch) {
+        await client.updatePlayer("6Nimmt", state.runningMatch.matchID, {
+          credentials: state.runningMatch.playerData.credentials,
+          playerID: state.runningMatch.playerData.playerID,
+          newName: state.playerName,
+        })
+      }
+    })()
+  }, [state.playerName])
+
+  useEffect(() => {
+    setCurrentMatch(
+      state.matchList.find((m) => m.matchID == state.runningMatch?.matchID)
+    )
+  }, [state.runningMatch])
+
+  let currentMatchFull: boolean = currentMatch
+    ? Object.values(currentMatch.players).filter((p) => !p.name).length == 0
+    : false
 
   const lobby = (
     <div className="flex justify-center">
@@ -228,7 +251,17 @@ const BespokeLobby = ({
     </div>
   )
 
-  return state.runningMatch ? playing : lobby
+  const gameLobby = currentMatch ? (
+    <GameLobby
+      match={currentMatch!}
+      player={state.playerData[currentMatch!.matchID]}
+      dispatch={dispatch}
+    />
+  ) : (
+    <></>
+  )
+
+  return currentMatch ? (currentMatchFull ? playing : gameLobby) : lobby
 }
 
 export default BespokeLobby
