@@ -32,7 +32,7 @@ const UsernameForm = ({ userName, dispatch }: Props) => {
       />
     </form>
   ) : (
-    <div className="flex justify-between">
+    <div className="flex justify-between h-14 items-end">
       {`Hello, ${userName} `}{" "}
       <a
         href="#"
