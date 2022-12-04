@@ -15,6 +15,7 @@ interface Props {
 }
 
 const Match = ({ match, player, playerName, dispatch, className = "" }: Props) => {
+  const disabled = playerName == ""
   const onClick = async () => {
     try {
       if (player) {
@@ -43,6 +44,7 @@ const Match = ({ match, player, playerName, dispatch, className = "" }: Props) =
           <Button
             size="xs"
             outline={true}
+            disabled={disabled}
             color={player ? "success" : undefined}
             type="button"
             name="join"
