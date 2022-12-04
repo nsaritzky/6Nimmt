@@ -6,9 +6,10 @@ interface Props {
   playerScores: Record<PlayerID, number>
   matchData: FilteredMetadata | undefined
   playerID: string | number
+  winner?: string
 }
 
-const ScoreTable = ({ playerScores, matchData, playerID }: Props) => {
+const ScoreTable = ({ playerScores, matchData, playerID, winner }: Props) => {
   const displayName = (id: PlayerID) =>
     matchData
       ? matchData.find((p) => p.id == parseInt(id))?.name
@@ -27,7 +28,11 @@ const ScoreTable = ({ playerScores, matchData, playerID }: Props) => {
             <tr
               key={id}
               className={`w-full py-2 ${
-                id === playerID ? "bg-blue-200" : "bg-gray-100"
+                id === winner
+                  ? "bg-yellow-300"
+                  : id === playerID
+                  ? "bg-blue-200"
+                  : "bg-gray-100"
               }`}
             >
               <td className="pr-4">{displayName(id)}</td>
