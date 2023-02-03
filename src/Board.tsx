@@ -76,6 +76,7 @@ const SelectPileButton = ({ selectPile, disabled, key }: selectPileButtonProps) 
     className="btn bg-slate-400 disabled:bg-slate-100"
     onClick={selectPile}
     key={key}
+    tabIndex={0}
     disabled={disabled}
   >
     {key}
@@ -181,6 +182,7 @@ const SixNimmtBoard = ({
             {G.players[playerID!].playedCard && (
               <div
                 aria-label="played card"
+                role="note"
                 className="card bg-purple-400 ml-5 mt-4 ring-2 ring-black"
               >
                 <Card card={G.players[playerID!].playedCard!} />
@@ -194,8 +196,8 @@ const SixNimmtBoard = ({
                 {Object.entries(G.players)
                   .filter(([id, _]) => id != playerID)
                   .map(([id, state]) => (
-                    <div className="flex-column items-center mt-4">
-                      <div key={id} className="card bg-purple-200 mx-auto">
+                    <div key={id} className="flex-column items-center mt-4">
+                      <div className="card bg-purple-200 mx-auto">
                         <Card card={state.playedCard!} />
                       </div>
                       <div className="text-center">{playerDisplayName(id)}</div>

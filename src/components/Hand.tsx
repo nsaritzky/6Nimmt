@@ -22,6 +22,7 @@ interface HandProps {
 const CardButton = ({ card, onClick, key, selected, active }: CardButtonProps) => {
   return (
     <button
+      tabIndex={0}
       className={`animate-in fade-in my-1 mx-1 min-w-max rounded ${
         active
           ? selected
