@@ -4,6 +4,9 @@ import { GameState, card, PlayerState, Piles, PublicState } from "./types"
 import { filterWithIndex } from "fp-ts/Record"
 import { ActivePlayers, TurnOrder } from "boardgame.io/core"
 import { pick, merge } from "./utils"
+import { RandomAPI } from "boardgame.io/dist/types/src/plugins/random/random"
+
+const GAME_END_THRESHOLD = 44
 
 const mapValues = <T, O extends { [s: string]: T }, S>(
   obj: O,
@@ -40,8 +43,15 @@ const sortedDeck: card[] = cardData.map((bulls, val) => ({
   bulls,
 }))
 
-const setup: typeof SixNimmt.setup = ({ ctx, random }) => {
-  const players: Record<PlayerID, PlayerState> = {}
+const setupRound = ({
+  players,
+  ctx,
+  random,
+}: {
+  players: Record<PlayerID, PlayerState>
+  ctx: Ctx
+  random: RandomAPI
+}) => {
   const deck = random!.Shuffle(sortedDeck)
   // The deck is full, so these shift calls will all succeed.
   const piles: Piles = [
@@ -50,21 +60,26 @@ const setup: typeof SixNimmt.setup = ({ ctx, random }) => {
     [deck.shift()!],
     [deck.shift()!],
   ]
+  const refreshedPlayers: Record<PlayerID, PlayerState> = {}
   for (let i = 0; i < ctx.numPlayers; ++i) {
-    players[i + ""] = {
+    refreshedPlayers[i + ""] = {
+      ...players[i + ""],
+      score: players[i + ""].score || 0,
       hand: deck.splice(0, 10).sort((a, b) => a.val - b.val),
-      score: 0,
       resolved: false,
     }
   }
 
   return {
-    players,
+    players: refreshedPlayers,
     deck,
     piles,
     resolveCounter: 0,
   }
 }
+
+const setup: typeof SixNimmt.setup = ({ ctx, random }) =>
+  setupRound({ players: {}, ctx, random })
 
 // Moves //////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -156,8 +171,18 @@ const choosePileMove: Move<GameState> = (
   events.endStage()
 }
 
-const roundEnd = ({ G, ctx }: FnContext<GameState>) => {
-  if (Object.values(G.players).every((p) => p.hand.length === 0 && ctx.turn > 30)) {
+const roundEnd = ({ G }: { G: GameState }) => {
+  return Object.values(G.players).every(
+    (p) => p.hand.length === 0 && p.playedCard === undefined
+  )
+}
+
+const gameEnd = ({ G, ctx }: { G: GameState; ctx: Ctx }) => {
+  if (
+    roundEnd({ G }) &&
+    Object.values(G.players).some((p) => p.score >= GAME_END_THRESHOLD)
+  ) {
+    console.log(G)
     return findByMin(Object.entries(G.players), ([_id, p]) => p.score)[0]
   }
 }
@@ -211,8 +236,19 @@ export const SixNimmt: Game<GameState> = {
           },
         },
       },
+      next: ({ G }) => (roundEnd({ G }) ? "reset" : "play"),
+    },
+    reset: {
+      moves: {},
+      turn: {
+        maxMoves: 0,
+      },
+      onBegin: ({ G, ctx, events, random }) => {
+        setupRound({ players: G.players, ctx, random })
+        events.endPhase
+      },
       next: "play",
     },
   },
-  endIf: roundEnd,
+  endIf: gameEnd,
 }
