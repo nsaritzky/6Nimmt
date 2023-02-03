@@ -1,7 +1,5 @@
 import { Client, Lobby } from "boardgame.io/react"
 import { LobbyClient } from "boardgame.io/client"
-import { SixNimmt } from "./Game"
-import SixNimmtBoard from "./Board"
 import GameLobby from "./components/game-lobby"
 import UserNameForm from "./components/username-form"
 import { Dispatch, useCallback, useEffect, useReducer, useRef, useState } from "react"
@@ -9,19 +7,16 @@ import { LobbyAPI } from "boardgame.io"
 import { Button } from "flowbite-react"
 import useInterval from "./use-interval"
 import usePersistantReducer from "./use-persistant-reducer"
-import { tryCatchK } from "fp-ts/TaskEither"
 import deepEqual from "fast-deep-equal"
-import { isTypeOnlyImportOrExportDeclaration } from "typescript"
 import NewGame from "./components/new-game"
 import Match from "./components/match"
 import { v4 as uuid } from "uuid"
-import { GameState } from "./types"
-import { SocketIO } from "boardgame.io/multiplayer"
 import { ChevronLeft } from "lucide-react"
 import { serverHostname as server, STORAGE_KEY } from "./config"
 import { BoardProps, GameState } from "./types"
 
 const HOUR_IN_MILLISECONDS = 3600000
+const WEEK_IN_MILLISECONDS = HOUR_IN_MILLISECONDS * 168
 
 export interface PlayerData {
   playerID: string
@@ -41,6 +36,7 @@ export type Action =
   | { type: "updateMatches"; matches: LobbyAPI.Match[] }
   | { type: "start"; runningMatch: RunningMatch }
   | { type: "stop" }
+  | { type: "clearStaleMatches" }
 
 interface RunningMatch {
   matchID: string
@@ -56,12 +52,27 @@ interface State {
   runningMatchAPI?: LobbyAPI.Match
 }
 
-const client = new LobbyClient({ server: server })
+const isFull = (match: LobbyAPI.Match) =>
+  match.players.filter((p) => !p.name).length == 0
 
-export const updateMatches = async (dispatch: Dispatch<Action>) => {
-  const { matches } = await client.listMatches("6Nimmt!")
+const client = new LobbyClient({ server })
+
+export const updateMatches = async (
+  dispatch: Dispatch<Action>,
+  updatedAfter?: number
+) => {
+  const { matches } = await client.listMatches("6Nimmt!", { updatedAfter })
   return dispatch({ type: "updateMatches", matches })
 }
+/*
+ * export const updateMatch = async (
+ *   match: LobbyAPI.Match,
+ *   dispatch: Dispatch<Action>
+ * ) => {
+ *   const updatedMatch = await client.getMatch("6Nimmt!", match.matchID)
+ *   dispatch({ type: "updateMatch", match: updatedMatch })
+ *   return updatedMatch
+ * } */
 
 export const create = async (numPlayers: number, dispatch: Dispatch<Action>) => {
   await client.createMatch("6Nimmt!", { numPlayers })
@@ -151,6 +162,35 @@ const reducer = (state: State, action: Action): State => {
         console.log(error)
         return state
       }
+    /* case "updateMatch":
+     *   try {
+     *     if (
+     *       !deepEqual(
+     *         state.matchList.find((m) => m.matchID === action.match.matchID),
+     *         action.match
+     *       )
+     *     ) {
+     *       return {
+     *         ...state,
+     *         matchList: state.matchList.map((m) =>
+     *           m.matchID === action.match.matchID ? action.match : m
+     *         ),
+     *       }
+     *     } else {
+     *       return state
+     *     }
+     *   } catch (error) {
+     *     console.log(error)
+     *     return state
+     *   } */
+
+    case "clearStaleMatches":
+      return {
+        ...state,
+        matchList: state.matchList.filter(
+          (m) => !isFull(m) && Date.now() - m.updatedAt > HOUR_IN_MILLISECONDS * 24
+        ),
+      }
     default:
       const _exhaustivenessCheck: never = action
   }
@@ -181,7 +221,7 @@ const BespokeLobby = ({
    * }) */
 
   useInterval(
-    async () => await updateMatches(dispatch),
+    async () => await updateMatches(dispatch, Date.now() - WEEK_IN_MILLISECONDS),
     state.runningMatch ? null : 2000
   )
 
