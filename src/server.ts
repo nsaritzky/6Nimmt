@@ -9,10 +9,9 @@ const server = Server({
 
   origins: [
     // Allow your game site to connect.
-    "https://www.nsaritzky.github.io",
+    "https://www.nsaritzky.github.io/",
     // Allow localhost to connect, except when NODE_ENV is 'production'.
-    Origins.LOCALHOST,
-    "0.0.0.0",
+    Origins.LOCALHOST_IN_DEVELOPMENT,
   ],
   db: new FlatFile({
     dir: "./storage.db",
