@@ -64,7 +64,7 @@ const setupRound = ({
   for (let i = 0; i < ctx.numPlayers; ++i) {
     refreshedPlayers[i + ""] = {
       ...players[i + ""],
-      score: players[i + ""].score || 0,
+      score: players[i + ""] ? players[i + ""].score : 0,
       hand: deck.splice(0, 10).sort((a, b) => a.val - b.val),
       resolved: false,
     }
