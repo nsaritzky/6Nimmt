@@ -1,7 +1,7 @@
 import { LobbyAPI } from "boardgame.io"
 import { Button } from "flowbite-react"
 import { Dispatch, useEffect, useState } from "react"
-import { Action, PlayerData, start } from "../lobby-reducer"
+import { Action, PlayerData, start, WEEK_IN_MILLISECONDS } from "../lobby-reducer"
 import { join, leave, updateMatches } from "../lobby-reducer"
 import { Client } from "boardgame.io/react"
 
@@ -24,7 +24,7 @@ const Match = ({ match, player, playerName, dispatch, className = "" }: Props) =
       } else {
         await join(match.matchID, playerName, dispatch)
       }
-      updateMatches(dispatch)
+      updateMatches(dispatch, Date.now() - WEEK_IN_MILLISECONDS)
     } catch (error) {
       console.log(error)
     }

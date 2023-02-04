@@ -1,5 +1,5 @@
 import { Dispatch, useState } from "react"
-import { create, updateMatches } from "../lobby-reducer"
+import { create, updateMatches, WEEK_IN_MILLISECONDS } from "../lobby-reducer"
 import type { Action } from "../lobby-reducer"
 
 interface NewGameProps {
@@ -14,7 +14,7 @@ const NewGame = ({ dispatch }: NewGameProps) => {
     if (numPlayers) {
       create(numPlayers, dispatch)
     }
-    updateMatches(dispatch)
+    updateMatches(dispatch, Date.now() - WEEK_IN_MILLISECONDS)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>

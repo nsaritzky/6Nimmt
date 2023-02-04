@@ -16,7 +16,7 @@ import { serverHostname as server, STORAGE_KEY } from "./config"
 import { BoardProps, GameState } from "./types"
 
 const HOUR_IN_MILLISECONDS = 3600000
-const WEEK_IN_MILLISECONDS = HOUR_IN_MILLISECONDS * 168
+export const WEEK_IN_MILLISECONDS = HOUR_IN_MILLISECONDS * 168
 
 export interface PlayerData {
   playerID: string
@@ -76,7 +76,7 @@ export const updateMatches = async (
 
 export const create = async (numPlayers: number, dispatch: Dispatch<Action>) => {
   await client.createMatch("6Nimmt!", { numPlayers })
-  await updateMatches(dispatch)
+  await updateMatches(dispatch, Date.now() - WEEK_IN_MILLISECONDS)
 }
 
 export const join = async (
@@ -102,7 +102,7 @@ export const leave = async (
   dispatch: Dispatch<Action>
 ) => {
   await client.leaveMatch("6Nimmt!", matchID, playerData)
-  await updateMatches(dispatch)
+  await updateMatches(dispatch, Date.now() - WEEK_IN_MILLISECONDS)
   return dispatch({ type: "leave", matchID })
 }
 
