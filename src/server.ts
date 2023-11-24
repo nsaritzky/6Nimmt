@@ -1,4 +1,4 @@
-import { Server, Origins, FlatFile } from "boardgame.io/server"
+import { FlatFile, Origins, Server } from "boardgame.io/server"
 import { SixNimmt } from "./Game"
 
 const server = Server({
@@ -10,6 +10,7 @@ const server = Server({
   origins: [
     // Allow your game site to connect.
     "https://nsaritzky.github.io",
+    "https://requirenathan.com",
     // Allow localhost to connect, except when NODE_ENV is 'production'.
     Origins.LOCALHOST_IN_DEVELOPMENT,
   ],
